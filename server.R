@@ -31,17 +31,19 @@ showtext_auto()
 
 #---- get pinned data here ----
 
+board_register_rsconnect()
+
 # stats for opening graphs
-stats_list <- pin_get("cd_stats_list")
+stats_list <- pin_get("cd_stats_list", board = "rsconnect")
 
 # list of all state's accumulated data
-states_accumulated <- pin_get("cd_states_accumulated")
+states_accumulated <- pin_get("cd_states_accumulated", board = "rsconnect")
 
 # us data
-us <- pin_get("cd_us")
+us <- pin_get("cd_us", board = "rsconnect")
 
 # states data
-states <- pin_get("cd_states")
+states <- pin_get("cd_states", board = "rsconnect")
 
 
 
@@ -167,40 +169,11 @@ shinyServer(function(input, output, session) {
                    
                  })
                  
-                 output$state_picker <- renderUI({
-                   
-                   selectInput(
-                     inputId = "state_picker",
-                     label = NULL,
-                     choices = c(" ", stats_list[["state_choices"]]),
-                     multiple = FALSE,
-                     selected = "Georgia",
-                     width = "180px"
-                   )
-                   
-                 }) # ends state_picker output
-                 
-                 output$my_state_total <- renderUI({
-                   num <- stats_list[["state_totals"]][state %in% input$state_picker, deaths]
-                   HTML(formatC(num, big.mark = ","))
-                 })
-                 
-                 output$my_state_name <- renderUI({
-                   HTML(paste0(input$state_picker, ' Known Deaths'))
-                 })
-                 
                  incProgress(1/4)
                  
                }) # ends withProgress
   
-
-  since10_accumulated <- eventReactive(input$state_picker, {
-    
-    req(input$state_picker)
-    
-    states_accumulated[[input$state_picker]]
-    
-  })
+  
   
   #---- daily counts ----
   
