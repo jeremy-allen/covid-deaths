@@ -82,6 +82,7 @@ states <- states[
 
 
 stats_list <- list(
+  data_pulled = paste(as.character(Sys.time()), "UTC"),
   us_cases = us_cases,
   us_deaths = us_deaths,
   date_range = date_range,

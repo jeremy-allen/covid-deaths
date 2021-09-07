@@ -58,7 +58,7 @@ shinyServer(function(input, output, session) {
                  
                  output$time <- renderUI({
                    div(style = "font-size: .7em;",
-                       HTML(paste0(Sys.time(), " UTC: DATA PULLED"))
+                       HTML(paste0(stats_list[["data_pulled"]], ": DATA PULLED"))
                    )
                  })
                  
