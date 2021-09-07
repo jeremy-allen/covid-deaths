@@ -32,16 +32,16 @@ showtext_auto()
 #---- get pinned data here ----
 
 # stats for opening graphs
-stats_list <- pin_get("stats_list")
+stats_list <- pin_get("cd_stats_list")
 
 # list of all state's accumulated data
-states_accumulated <- pin_get("states_accumulated")
+states_accumulated <- pin_get("cd_states_accumulated")
 
 # us data
-us <- pin_get("us_covid_dat")
+us <- pin_get("cd_us")
 
 # states data
-states <- pin_get("states")
+states <- pin_get("cd_states")
 
 
 
