@@ -1,13 +1,43 @@
+---
+title: "covid-deaths-etl"
+author: "Jeremy Allen"
+date: "9/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE)
+
 library(here)
 library(imputeTS)
 library(data.table)
 library(pins)
+
+```
+
+```{r data, include=FALSE}
 
 # get state data from The New York Times github
 states <- fread(
   input = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv",
   key = c('state', 'date')
 )
+
+# get US national data from The New York Times github
+us <- fread(
+  input = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv",
+  key = 'date'
+)
+
+# get table of initial closure dates
+stay_at_home_table <- fread("https://raw.githubusercontent.com/jeremy-allen/covid-deaths/main/home_dates.csv")
+
+```
+
+
+```{r states, include=FALSE}
+
+#---- prep states ----
 
 # Get state names for ones with more than 19 deaths
 # if you want the total per group, but the group entries are
@@ -21,23 +51,44 @@ over19 <- state_totals[deaths >= 20, state]
 
 states <- states[state %chin% over19,]
 
-
+# make new columns to show new cases and new deaths
 count_cols = c('cases', 'deaths')
 states[ , paste0('new_', count_cols) := lapply(.SD, function(x) x - shift(x, n = 1L, type = "lag")),
         by = state, .SDcols = count_cols]
 
-message("> starting download of national data")
+# states a user can choose from
+state_choices <- states[, unique(state)]
 
-# get national data from The New York Times github
-us <- fread(
-  input = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv",
-  key = 'date'
-)
+date_range <- states[, range(unique(date))]
+names(date_range) <- c("first", "last")
+
+# rolling averages for new cases and new deaths and join closure dates
+states <- states[
+  , `:=`(
+    nc_avg = frollmean(new_cases, 7L, align = "right"),
+    nd_avg = frollmean(new_deaths, 7L, align = "right")
+  )
+  , by = state
+][
+  , c("nc_avg", "nd_avg") := lapply(.SD, ceiling), .SDcols = c("nc_avg", "nd_avg")
+][
+  stay_at_home_table, on = "state" # joining closure dates
+][
+  , plot_label_end := "REOPENING"
+][
+  , plot_label_start := "CLOSING"
+]
+
+```
+
+
+
+```{r us, include=FALSE}
+
+#---- prep US ----
 
 # add column for new deaths
 us[ , paste0('new_', count_cols) := lapply(.SD, function(x) x - shift(x, n = 1L, type = "lag")), .SDcols = count_cols]
-
-message("> adding rolling means")
 
 # add rolling means
 us[, `:=`(nd_avg = frollmean(new_deaths, 7L, align = "right"),
@@ -48,37 +99,12 @@ setnafill(us, type = "const", fill = 0L, cols=c("deaths_avg","nd_avg"))
 us[, `:=`(nd_avg = as.integer(ceiling(nd_avg)),
           deaths_avg = as.integer(ceiling(deaths_avg)))]
 
+# format
 us_cases <- us[, last(cases)] %>% 
   formatC(digits = 0, format = "d", big.mark = ",")
 
 us_deaths <- us[, last(deaths)] %>% 
   formatC(digits = 0, format = "d", big.mark = ",")
-
-date_range <- states[, range(unique(date))]
-names(date_range) <- c("first", "last")
-
-# states a user can choose from
-state_choices <- states[, unique(state)] 
-
-message("> reading in stay at home table")
-
-stay_at_home_table <- fread("https://raw.githubusercontent.com/jeremy-allen/covid-deaths/main/home_dates.csv")
-
-states <- states[
-  , `:=`( # rolling averages for new cases and new deaths
-    nc_avg = frollmean(new_cases, 7L, align = "right"),
-    nd_avg = frollmean(new_deaths, 7L, align = "right")
-  )
-  , by = state
-][
-  , c("nc_avg", "nd_avg") := lapply(.SD, ceiling), .SDcols = c("nc_avg", "nd_avg")
-][
-  stay_at_home_table, on = "state"
-][
-  , plot_label_end := "REOPENING"
-][
-  , plot_label_start := "CLOSING"
-]
 
 
 stats_list <- list(
@@ -92,7 +118,9 @@ stats_list <- list(
 )
 
 
+```
 
+```{r accumulate, include=FALSE}
 
 # ---- state accumulated data ----
 
@@ -155,12 +183,21 @@ states_accumulated <- lapply(since10, accumulate_by, var = ~days_since_10)
 # since10_accumulated <- as.data.frame(since10) %>% 
 #   accumulate_by(var = ~days_since_10)
 
+```
+
+```{r pin, include=FALSE}
 
 #---- pin things to Connect ----
 
 board_register_rsconnect()
 
-pin(I(states), name = "cd_states")
-pin(I(us), name = "cd_us")
-pin(I(stats_list), name = "cd_stats_list")
-pin(I(states_accumulated), name = "cd_states_accumulated")
+pin(I(states), name = "cd_states", description = "pinned data is a table of covid deaths per US state", board = "rsconnect")
+
+pin(I(us), name = "cd_us", description = "pinned data is a table of covid deaths for the US", board = "rsconnect")
+
+pin(I(stats_list), name = "cd_stats_list", description = "pinned data is a list of covid stats for the covid-deaths app", board = "rsconnect")
+
+pin(I(states_accumulated), name = "cd_states_accumulated", description = "pinned data is a list of data.tables of covid death numbers accumulated by state for animated plotly graph in covid-deaths app", board = "rsconnect")
+
+```
+
