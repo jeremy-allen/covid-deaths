@@ -218,18 +218,11 @@ states_accumulated <- lapply(since10, accumulate_by, var = ~days_since_10)
 #   accumulate_by(var = ~days_since_10)
 
 
-#---- pin things locally ----
+#---- pin things to Connect ----
 
-# define local board
-board_register_local(cache = here("cache"))
+board_register_rsconnect()
 
-pin(I(states), name = "states")
-pin(I(us), name = "us_covid_dat")
-pin(I(stats_list), name = "stats_list")
-pin(I(states_accumulated), name = "states_accumulated")
-
-# cleanup
-rm(list = c("states", "us", "stats_list", "states_accumulated", "since10",
-            "state_dat"))
-
-gc()
+pin(I(states), name = "cd_states")
+pin(I(us), name = "cd_us")
+pin(I(stats_list), name = "cd_stats_list")
+pin(I(states_accumulated), name = "cd_states_accumulated")
