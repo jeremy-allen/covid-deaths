@@ -49,20 +49,19 @@ state_totals <- states[, .SD[.N], by = state]
 
 over19 <- state_totals[deaths >= 20, state]
 
+# states a user can choose from
 states <- states[state %chin% over19,]
+state_choices <- states[, unique(state)]
 
 # make new columns to show new cases and new deaths
 count_cols = c('cases', 'deaths')
 states[ , paste0('new_', count_cols) := lapply(.SD, function(x) x - shift(x, n = 1L, type = "lag")),
         by = state, .SDcols = count_cols]
 
-# states a user can choose from
-state_choices <- states[, unique(state)]
-
 date_range <- states[, range(unique(date))]
 names(date_range) <- c("first", "last")
 
-# rolling averages for new cases and new deaths and join closure dates
+# rolling averages for new cases and new deaths
 states <- states[
   , `:=`(
     nc_avg = frollmean(new_cases, 7L, align = "right"),
@@ -71,8 +70,11 @@ states <- states[
   , by = state
 ][
   , c("nc_avg", "nd_avg") := lapply(.SD, ceiling), .SDcols = c("nc_avg", "nd_avg")
-][
-  stay_at_home_table, on = "state" # joining closure dates
+]
+
+# joining closure dates
+states <- stay_at_home_table[
+  states, on = "state" 
 ][
   , plot_label_end := "REOPENING"
 ][
