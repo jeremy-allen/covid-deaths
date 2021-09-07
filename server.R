@@ -234,7 +234,8 @@ shinyServer(function(input, output, session) {
     
   }) # ends renderPlot for state
   
-  # animated plot
+  
+  # ---- animated plot ----
   output$animation <- renderPlotly({
     
     req(input$state_picker)
@@ -299,7 +300,7 @@ shinyServer(function(input, output, session) {
                        )
                      ) # ends layout
                    
-                   fig <- p %>% 
+                   fig <- p %>% ############## HOW CAN THIS BE FASTER?
                      plotly::animation_opts(
                        frame = 35, # changed from 250
                        transition = 35, # changed from 250

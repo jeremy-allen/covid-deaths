@@ -1,0 +1,13 @@
+name: covid_deaths_etl
+title: covid_deaths_etl
+username: jeremy_allen
+account: jeremy_allen
+server: connect.rstudioservices.com
+hostUrl: https://connect.rstudioservices.com/__api__
+appId: 6886
+bundleId: 125349
+url: https://connect.rstudioservices.com/content/a4f84638-ca69-45f4-95f1-e2486746e7c3/
+when: 1631039876.91054
+lastSyncTime: 1631039876.9106
+asMultiple: FALSE
+asStatic: FALSE
