@@ -5,10 +5,10 @@ account: jeremy_allen
 server: connect.rstudioservices.com
 hostUrl: https://connect.rstudioservices.com/__api__
 appId: 6891
-bundleId: 125357
-url: https://connect.rstudioservices.com/content/0159c983-854d-42bc-b21e-1e952db967b5/
-when: 1631040865.79746
-lastSyncTime: 1631040865.7975
+bundleId: 125389
+url: https://connect.rstudioservices.com/covid-deaths/
+when: 1631047941.95544
+lastSyncTime: 1631047941.95559
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: covid_deaths_etl.Rmd|get_stay_home_dates.R|home_dates.csv|README.md

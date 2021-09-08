@@ -239,12 +239,10 @@ shinyServer(function(input, output, session) {
   output$animation <- renderPlotly({
     
     req(input$state_picker)
-    message("> starting renderPlotly on 325")
+    message("> starting renderPlotly")
     
     withProgress(message = "Building awesome animated plot for you. Hit Play when it's ready...",
                  value = 0, {
-                  
-                   incProgress(1/4)
                    
                    output$daily_chart_title <- renderUI({
                      
@@ -252,7 +250,6 @@ shinyServer(function(input, output, session) {
                      
                    })
                    
-                   incProgress(1/4)
                    
                    output$animation_chart_title <- renderUI({
                      
@@ -260,7 +257,7 @@ shinyServer(function(input, output, session) {
                      
                    })
                    
-                   incProgress(1/4)
+                   incProgress(2/4)
                    
                    p <- since10_accumulated() %>% 
                      plot_ly(
@@ -324,7 +321,7 @@ shinyServer(function(input, output, session) {
                        font = list(color = accent_blue)
                      )
                    
-                   incProgress(1/4)
+                   incProgress(2/4)
                    
                  }) # ends withProgress
     fig

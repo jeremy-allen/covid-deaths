@@ -133,7 +133,7 @@ setnafill(state_dat, type = "const", fill = 0L, cols=c("new_deaths"))
 # names of top states in order
 #state_levels <- state_dat[, .(n = last(new_deaths)), by = state][order(-n)][, state] 
 
-message("> adding rolling means on 282")
+message("> adding rolling means")
 
 # add rolling means
 state_dat[, `:=`(nd_avg = frollmean(new_deaths, 7L, align = "right"),
@@ -159,7 +159,7 @@ since10 <- state_dat[
     , state := as.factor(state), by = state
   ]
 
-message("> starting accumulate_by on 308")
+message("> starting accumulate_by")
 
 # define function that will be intermediate cumulative states for animation
 accumulate_by <- function(states, var) {
