@@ -241,7 +241,7 @@ shinyServer(function(input, output, session) {
     req(input$state_picker)
     message("> starting renderPlotly")
     
-    withProgress(message = "Building awesome animated plot for you. Hit Play when it's ready...",
+    withProgress(message = "Starting animation build",
                  value = 0, {
                    
                    output$daily_chart_title <- renderUI({
@@ -257,7 +257,7 @@ shinyServer(function(input, output, session) {
                      
                    })
                    
-                   incProgress(2/4)
+                   incProgress(1/4)
                    
                    p <- since10_accumulated() %>% 
                      plot_ly(
@@ -297,10 +297,12 @@ shinyServer(function(input, output, session) {
                        )
                      ) # ends layout
                    
-                   fig <- p %>% ############## HOW CAN THIS BE FASTER?
+                   incProgress(1/4, message = "Finishing up the animated plot. You can click Play when it's ready...")
+                   
+                   fig <- p %>%
                      plotly::animation_opts(
-                       frame = 35, # changed from 250
-                       transition = 35, # changed from 250
+                       frame = 24, # changed from 250
+                       transition = 6, # changed from 250
                        redraw = FALSE
                      ) 
                    
